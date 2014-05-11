@@ -1123,6 +1123,29 @@ TOKEN :
 | < GT: ">" >
 }
 
+/*
+        Invariants are values which should not be allowed for a given variable. We
+        intend to develop a tool to extend the Java language in order to be able to
+        specify invariants for a variable (just like VDM [1]). The code should compile to
+        java bytecode and produce an exception if the invariant is violated.
+        In addition we want the inclusion of pre- and post-conditions.
+*/
+
+TOKEN :
+{  < OPER: < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > > // TODO: Arranjar uma solução para os simbolos sem usar lookahead > 1
+| < INVD: "//" < AT > "INVARIANT" < TYPE > >
+| < TYPE: "F" < FCOND > | "I" < ICOND > | "C" < CCOND > >
+| < FCOND: < IDENTIFIERI > (< FOPER1 > | < FOPER2 >) >
+| < IDENTIFIERI: < LETTER > (< PART_LETTER >)* >
+| < FOPER1: < OPER > < FLOATING_POINT_LITERAL > >
+| < FOPER2: < FLOATING_POINT_LITERAL > < LT > < GT > < FLOATING_POINT_LITERAL > >
+| < ICOND: < IDENTIFIERI > (< IOPER1 > | < IOPER2 >) >
+| < IOPER1: < OPER > < INTEGER_LITERAL > >
+| < IOPER2: < INTEGER_LITERAL > < LT > < GT > < INTEGER_LITERAL > >
+| < CCOND: < IDENTIFIERI > < COPER1 > >
+| < COPER1: ( < EQ > < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET >
+			| < LT > < GT >  < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET > ) >
+}
 
 /*****************************************
  * THE JAVA LANGUAGE GRAMMAR STARTS HERE *

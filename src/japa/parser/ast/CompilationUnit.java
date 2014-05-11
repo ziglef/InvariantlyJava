@@ -21,10 +21,13 @@
  */
 package japa.parser.ast;
 
+import invariants.Invariant;
+import invariants.Value;
 import japa.parser.ast.body.TypeDeclaration;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,6 +42,9 @@ public final class CompilationUnit extends Node {
     private final List<TypeDeclaration> types;
 
     private final List<Comment> comments;
+    
+    // Hash Map that will save all the invariants name and info //
+    private HashMap<String, Invariant<? extends Comparable<?>>> invariants;
 
     public CompilationUnit(int line, int column, PackageDeclaration pakage, List<ImportDeclaration> imports, List<TypeDeclaration> types, List<Comment> comments) {
         super(line, column);
@@ -46,8 +52,28 @@ public final class CompilationUnit extends Node {
         this.imports = imports;
         this.types = types;
         this.comments = comments;
+        
+     // Added the initialization for the invariants hash map //
+        this.invariants = new HashMap<String, Invariant<? extends Comparable<?>>>();
     }
 
+    // Invariants stuff //
+    public void addInvariant(String name, Invariant<? extends Comparable<?>> inv){
+    	this.invariants.put(name, inv);
+    }
+    
+    public boolean checkInvariant(String name){
+    	return this.invariants.containsKey(name);
+    }
+    
+    public <T extends Comparable<?>> boolean checkInvariantValue(String name, T value){
+    	if( !checkInvariant(name) )
+    		return false;
+    	
+    	return this.invariants.get(name).checkValue(value);
+    }
+    // End Invariants stuff //
+    
     public PackageDeclaration getPakage() {
         return pakage;
     }
