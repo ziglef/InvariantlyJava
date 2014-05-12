@@ -56,6 +56,10 @@ public final class CompilationUnit extends Node {
         this.invariants = new HashMap<String, Invariant<? extends Comparable<?>>>();
     }
 
+    
+    
+    
+    
     // Invariants stuff //
     public void addInvariant(String name, Invariant<? extends Comparable<?>> inv){
     	this.invariants.put(name, inv);
@@ -72,6 +76,10 @@ public final class CompilationUnit extends Node {
     	return this.invariants.get(name).checkValue(value);
     }
     // End Invariants stuff //
+    
+    
+    
+    
     
     public PackageDeclaration getPakage() {
         return pakage;
