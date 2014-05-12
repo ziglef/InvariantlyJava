@@ -22,7 +22,6 @@
 package japa.parser.ast;
 
 import invariants.Invariant;
-import invariants.Value;
 import japa.parser.ast.body.TypeDeclaration;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
