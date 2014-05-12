@@ -1111,13 +1111,13 @@ TOKEN :
   < RUNSIGNEDSHIFT: ">>>" >
   {
      matchedToken.kind = GT;
-     ((Token.GTToken)matchedToken).realKind = RUNSIGNEDSHIFT;
+     (Token.newToken(GT).matchedToken).realKind = RUNSIGNEDSHIFT;
      input_stream.backup(2);
   }
 | < RSIGNEDSHIFT: ">>" >
   {
      matchedToken.kind = GT;
-     ((Token.GTToken)matchedToken).realKind = RSIGNEDSHIFT;
+     (Token.newToken(GT).matchedToken).realKind = RSIGNEDSHIFT;
      input_stream.backup(1);
   }
 | < GT: ">" >
@@ -1131,16 +1131,20 @@ TOKEN :
         In addition we want the inclusion of pre- and post-conditions.
 */
 
+// Devido a uma limitação do JavaCC em vez de usarmos um operador que contem os varios operadores
+// temos de reescrever em cada linha todos os operadores possiveis
+// OLD: < OPER: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) >
+
 TOKEN :
-{  < OPER: < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > > // TODO: Arranjar uma solução para os simbolos sem usar lookahead > 1
-| < INVD: "//" < AT > "INVARIANT" < TYPE > >
+{
+  < INVD: "//" < AT > "INVARIANT" < TYPE > >
 | < TYPE: "F" < FCOND > | "I" < ICOND > | "C" < CCOND > >
 | < FCOND: < IDENTIFIERI > (< FOPER1 > | < FOPER2 >) >
 | < IDENTIFIERI: < LETTER > (< PART_LETTER >)* >
-| < FOPER1: < OPER > < FLOATING_POINT_LITERAL > >
+| < FOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < FLOATING_POINT_LITERAL > >
 | < FOPER2: < FLOATING_POINT_LITERAL > < LT > < GT > < FLOATING_POINT_LITERAL > >
 | < ICOND: < IDENTIFIERI > (< IOPER1 > | < IOPER2 >) >
-| < IOPER1: < OPER > < INTEGER_LITERAL > >
+| < IOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < INTEGER_LITERAL > >
 | < IOPER2: < INTEGER_LITERAL > < LT > < GT > < INTEGER_LITERAL > >
 | < CCOND: < IDENTIFIERI > < COPER1 > >
 | < COPER1: ( < EQ > < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET >
@@ -1306,7 +1310,8 @@ List ExtendsList(boolean isInterface):
    ( "," cit = ClassOrInterfaceType() { ret.add(cit); extendsMoreThanOne = true; } )*
    {
       if (extendsMoreThanOne && !isInterface)
-         throw new ParseException(token, "A class cannot extend more than one other class");
+         throw new ParseException("A class cannot extend more than one other class");
+         // old: throw new ParseException(token, "A class cannot extend more than one other class");
    }
    { return ret; }
 }
@@ -1321,7 +1326,8 @@ List ImplementsList(boolean isInterface):
    ( "," cit = ClassOrInterfaceType() { ret.add(cit); } )*
    {
       if (isInterface)
-         throw new ParseException(token, "An interface cannot implement other interfaces");
+         throw new ParseException("An interface cannot implement other interfaces");
+         // old: throw new ParseException(token, "An interface cannot implement other interfaces");
    }
    { return ret; }
 }
@@ -1429,7 +1435,8 @@ BodyDeclaration ClassOrInterfaceBodyDeclaration(boolean isInterface):
 	  ret = InitializerDeclaration()
 	  {
 	     if (isInterface)
-	        throw new ParseException(token, "An interface cannot have initializers");
+	        throw new ParseException("An interface cannot have initializers");
+	        // old: throw new ParseException(token, "An interface cannot have initializers");
 	  }
 	|
 	  modifier = Modifiers() // Just get all the modifiers out of the way. If you want to do
@@ -2779,7 +2786,7 @@ void RUNSIGNEDSHIFT():
 {}
 {
   ( LOOKAHEAD({ getToken(1).kind == GT &&
-                ((Token.GTToken)getToken(1)).realKind == RUNSIGNEDSHIFT} )
+                ((Token.newToken(GT)).getToken(1)).realKind == RUNSIGNEDSHIFT} )
    ">" ">" ">"
   )
 }
@@ -2788,7 +2795,7 @@ void RSIGNEDSHIFT():
 {}
 {
   ( LOOKAHEAD({ getToken(1).kind == GT &&
-                ((Token.GTToken)getToken(1)).realKind == RSIGNEDSHIFT} )
+                ((Token.newToken(GT)).getToken(1)).realKind == RSIGNEDSHIFT} )
   ">" ">"
   )
 }
