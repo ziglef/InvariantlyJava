@@ -32,7 +32,7 @@ public final class SuperMemberAccessExpr extends Expression {
     private final String name;
 
     public SuperMemberAccessExpr(int line, int column, String name) {
-        super(line, column);
+        super(line, column, line, column);
         this.name = name;
     }
 

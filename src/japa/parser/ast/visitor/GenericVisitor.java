@@ -25,7 +25,6 @@ import japa.parser.ast.BlockComment;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.ImportDeclaration;
 import japa.parser.ast.LineComment;
-import japa.parser.ast.Node;
 import japa.parser.ast.PackageDeclaration;
 import japa.parser.ast.TypeParameter;
 import japa.parser.ast.body.AnnotationDeclaration;
@@ -107,8 +106,6 @@ import japa.parser.ast.type.WildcardType;
  * @author Julio Vilmar Gesser
  */
 public interface GenericVisitor<R, A> {
-
-    public R visit(Node n, A arg);
 
     //- Compilation Unit ----------------------------------
 
@@ -217,8 +214,8 @@ public interface GenericVisitor<R, A> {
     public R visit(ObjectCreationExpr n, A arg);
 
     public R visit(QualifiedNameExpr n, A arg);
-
-    public R visit(SuperMemberAccessExpr n, A arg);
+    
+    public R visit(SuperMemberAccessExpr v, A arg);
 
     public R visit(ThisExpr n, A arg);
 

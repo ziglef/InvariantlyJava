@@ -1,0 +1,55 @@
+java_1_5.jj:
+	/*
+			Invariants are values which should not be allowed for a given variable. We
+			intend to develop a tool to extend the Java language in order to be able to
+			specify invariants for a variable (just like VDM [1]). The code should compile to
+			java bytecode and produce an exception if the invariant is violated.
+			In addition we want the inclusion of pre- and post-conditions.
+	*/
+
+	// Devido a uma limitação do JavaCC em vez de usarmos um operador que contem os varios operadores
+	// temos de reescrever em cada linha todos os operadores possiveis
+	// OLD: < OPER: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) >
+
+	TOKEN :
+	{
+	  < INVD: "//" < AT > "INVARIANT" < TYPE > >
+	| < TYPE: "F" < FCOND > | "I" < ICOND > | "C" < CCOND > >
+	| < FCOND: < IDENTIFIERI > (< FOPER1 > | < FOPER2 >) >
+	| < IDENTIFIERI: < LETTER > (< PART_LETTER >)* >
+	| < FOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < FLOATING_POINT_LITERAL > >
+	| < FOPER2: < FLOATING_POINT_LITERAL > < LT > < GT > < FLOATING_POINT_LITERAL > >
+	| < ICOND: < IDENTIFIERI > (< IOPER1 > | < IOPER2 >) >
+	| < IOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < INTEGER_LITERAL > >
+	| < IOPER2: < INTEGER_LITERAL > < LT > < GT > < INTEGER_LITERAL > >
+	| < CCOND: < IDENTIFIERI > < COPER1 > >
+	| < COPER1: ( < EQ > < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET >
+				| < LT > < GT >  < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET > ) >
+	}
+
+CompilationUnit.java:
+	// Declaration //
+    // Hash Map that will save all the invariants name and info //
+    private HashMap<String, Invariant<? extends Comparable<?>>> invariants;
+	
+	// Constructor material //
+    // Added the initialization for the invariants hash map //
+    this.invariants = new HashMap<String, Invariant<? extends Comparable<?>>>();
+	
+	// Additional methods //
+	// Invariants stuff //
+    public void addInvariant(String name, Invariant<? extends Comparable<?>> inv){
+    	this.invariants.put(name, inv);
+    }
+    
+    public boolean checkInvariant(String name){
+    	return this.invariants.containsKey(name);
+    }
+    
+    public <T extends Comparable<?>> boolean checkInvariantValue(String name, T value){
+    	if( !checkInvariant(name) )
+    		return false;
+    	
+    	return this.invariants.get(name).checkValue(value);
+    }
+    // End Invariants stuff //

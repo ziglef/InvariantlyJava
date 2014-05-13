@@ -5,3 +5,6 @@
 /ParseException.java
 /Token.java
 /TokenMgrError.java
+/ASTParser.java
+/ASTParserConstants.java
+/ASTParserTokenManager.java
