@@ -1497,18 +1497,6 @@ BodyDeclaration ClassOrInterfaceBodyDeclaration(boolean isInterface):
   { return ret; }
 }
 
-// TODO: AROUND HERE SEARCH FOR WORK //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
 FieldDeclaration FieldDeclaration(Modifier modifier):
 {
 	Type type;
