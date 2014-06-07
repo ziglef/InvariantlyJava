@@ -68,7 +68,7 @@ public final class VariableDeclarator extends Node {
 			Character valuec = null;
 
 			boolean isItOk = false;
-
+			
 			ScriptEngineManager mgr = new ScriptEngineManager();
 			ScriptEngine engine = mgr.getEngineByName("JavaScript");
 			String newvalue = null;
@@ -82,10 +82,11 @@ public final class VariableDeclarator extends Node {
 				valuef = Float.parseFloat(newvalue);
 				isItOk = !invs.checkInvariantValue(id.getName(), valuef);
 			} else if(inv.getType().equals("Integer")){
-				valuei = Integer.parseInt(newvalue);
+				valuef = Float.parseFloat(newvalue);
+				valuei = valuef.intValue();
 				isItOk = !invs.checkInvariantValue(id.getName(), valuei);
 			} else if(inv.getType().equals("Character")){
-				valuec = init.toString().charAt(0);
+				valuec = init.toString().charAt(1);
 				isItOk = !invs.checkInvariantValue(id.getName(), valuec);
 			}
 
@@ -121,7 +122,7 @@ public final class VariableDeclarator extends Node {
 			Character valuec = null;
 
 			boolean isItOk = false;
-
+			
 			ScriptEngineManager mgr = new ScriptEngineManager();
 			ScriptEngine engine = mgr.getEngineByName("JavaScript");
 			String newvalue = null;
@@ -130,15 +131,16 @@ public final class VariableDeclarator extends Node {
 			} catch (ScriptException e1) {
 				e1.printStackTrace();
 			}
-
+			
 			if(inv.getType().equals("Float")){
 				valuef = Float.parseFloat(newvalue);
 				isItOk = !invs.checkInvariantValue(id.getName(), valuef);
 			} else if(inv.getType().equals("Integer")){
-				valuei = Integer.parseInt(newvalue);
+				valuef = Float.parseFloat(newvalue);
+				valuei = valuef.intValue();
 				isItOk = !invs.checkInvariantValue(id.getName(), valuei);
 			} else if(inv.getType().equals("Character")){
-				valuec = init.toString().charAt(0);
+				valuec = init.toString().charAt(1);
 				isItOk = !invs.checkInvariantValue(id.getName(), valuec);
 			}
 

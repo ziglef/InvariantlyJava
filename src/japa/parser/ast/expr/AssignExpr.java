@@ -94,10 +94,11 @@ public final class AssignExpr extends Expression {
         		valuef = Float.parseFloat(newvalue);
             	isItOk = !invs.checkInvariantValue(target.toString(), valuef);
         	} else if(inv.getType().equals("Integer")){
-        		valuei = Integer.parseInt(newvalue);
+        		valuef = Float.parseFloat(newvalue);
+				valuei = valuef.intValue();
             	isItOk = !invs.checkInvariantValue(target.toString(), valuei);
         	} else if(inv.getType().equals("Character")){
-        		valuec = value.toString().charAt(0);
+        		valuec = value.toString().charAt(1);
         		isItOk = !invs.checkInvariantValue(target.toString(), valuec);
         	}
         	
@@ -149,10 +150,11 @@ public final class AssignExpr extends Expression {
         		valuef = Float.parseFloat(newvalue);
             	isItOk = !invs.checkInvariantValue(target.toString(), valuef);
         	} else if(inv.getType().equals("Integer")){
-        		valuei = Integer.parseInt(newvalue);
+        		valuef = Float.parseFloat(newvalue);
+				valuei = valuef.intValue();
             	isItOk = !invs.checkInvariantValue(target.toString(), valuei);
         	} else if(inv.getType().equals("Character")){
-        		valuec = value.toString().charAt(0);
+        		valuec = value.toString().charAt(1);
         		isItOk = !invs.checkInvariantValue(target.toString(), valuec);
         	}
         	

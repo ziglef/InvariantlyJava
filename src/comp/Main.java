@@ -12,6 +12,7 @@ public class Main {
 			System.out.println("Usage: java invariants <java_file>");
 			System.exit(-1);
 		}
+		
 		FileInputStream in = new FileInputStream(args[0]);
 		
 		CompilationUnit cu;
@@ -20,9 +21,6 @@ public class Main {
 		} finally {
 			in.close();
 		}
-		
-		// Print the results of the compilation unit
-		// System.out.println(cu.toString());
 		
 	}
 
