@@ -21,6 +21,13 @@
  */
 package japa.parser.ast.expr;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
+import invariants.InvalidValueException;
+import invariants.Invariant;
+import invariants.Invariants;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
 
@@ -57,6 +64,54 @@ public final class AssignExpr extends Expression {
         this.target = target;
         this.value = value;
         this.op = op;
+        
+        Invariants invs = Invariants.getInstance();
+        
+        System.out.println("I detect an assignement!");
+        if(target != null) System.out.println("Target: "+target.toString());
+        if(value != null) System.out.println("Value: "+value.toString());
+        
+        if(invs.checkInvariant(target.toString())){
+        	System.out.println("The target is an invariant! Checking value...");
+        	
+        	Invariant<? extends Comparable<?>> inv = invs.getInvariant(target.toString());
+        	Integer valuei = null;
+        	Float valuef = null;
+        	Character valuec = null;
+        	
+        	boolean isItOk = false;
+        	
+        	ScriptEngineManager mgr = new ScriptEngineManager();
+        	ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        	String newvalue = null;
+        	try {
+				newvalue = engine.eval(value.toString()).toString();
+			} catch (ScriptException e1) {
+				e1.printStackTrace();
+			}
+        	
+        	if(inv.getType().equals("Float")){
+        		valuef = Float.parseFloat(newvalue);
+            	isItOk = !invs.checkInvariantValue(target.toString(), valuef);
+        	} else if(inv.getType().equals("Integer")){
+        		valuei = Integer.parseInt(newvalue);
+            	isItOk = !invs.checkInvariantValue(target.toString(), valuei);
+        	} else if(inv.getType().equals("Character")){
+        		valuec = value.toString().charAt(0);
+        		isItOk = !invs.checkInvariantValue(target.toString(), valuec);
+        	}
+        	
+        	if(isItOk){
+        		System.out.println("The value its ok!");
+        	} else {
+        		System.out.println("The value is not ok!");
+        		try{
+        			throw new InvalidValueException();
+        		} catch( InvalidValueException e){
+        			e.printStackTrace();
+        		}
+        	}
+        }
     }
 
     public AssignExpr(int beginLine, int beginColumn, int endLine, int endColumn, Expression target, Expression value, Operator op) {
@@ -64,6 +119,54 @@ public final class AssignExpr extends Expression {
         this.target = target;
         this.value = value;
         this.op = op;
+        
+        Invariants invs = Invariants.getInstance();
+        
+        System.out.println("I detect an assignement!");
+        if(target != null) System.out.println("Target: "+target.toString());
+        if(value != null) System.out.println("Value: "+value.toString());
+        
+        if(invs.checkInvariant(target.toString())){
+        	System.out.println("The target is an invariant! Checking value...");
+        	
+        	Invariant<? extends Comparable<?>> inv = invs.getInvariant(target.toString());
+        	Integer valuei = null;
+        	Float valuef = null;
+        	Character valuec = null;
+        	
+        	boolean isItOk = false;
+        	
+        	ScriptEngineManager mgr = new ScriptEngineManager();
+        	ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        	String newvalue = null;
+        	try {
+				newvalue = engine.eval(value.toString()).toString();
+			} catch (ScriptException e1) {
+				e1.printStackTrace();
+			}
+        	
+        	if(inv.getType().equals("Float")){
+        		valuef = Float.parseFloat(newvalue);
+            	isItOk = !invs.checkInvariantValue(target.toString(), valuef);
+        	} else if(inv.getType().equals("Integer")){
+        		valuei = Integer.parseInt(newvalue);
+            	isItOk = !invs.checkInvariantValue(target.toString(), valuei);
+        	} else if(inv.getType().equals("Character")){
+        		valuec = value.toString().charAt(0);
+        		isItOk = !invs.checkInvariantValue(target.toString(), valuec);
+        	}
+        	
+        	if(isItOk){
+        		System.out.println("The value its ok!");
+        	} else {
+        		System.out.println("The value is not ok!");
+        		try{
+        			throw new InvalidValueException();
+        		} catch( InvalidValueException e){
+        			e.printStackTrace();
+        		}
+        	}
+        }
     }
 
     @Override

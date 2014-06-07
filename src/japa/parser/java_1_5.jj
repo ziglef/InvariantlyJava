@@ -47,6 +47,9 @@ PARSER_BEGIN(ASTParser)
  * along with Java 1.5 parser and Abstract Syntax Tree.  If not, see <http://www.gnu.org/licenses/>.
  */
 package japa.parser;
+import invariants.InvalidTypeException;
+import invariants.Invariant;
+import invariants.Invariants;
 
 import java.io.*;
 import java.util.*;
@@ -185,7 +188,7 @@ TOKEN_MGR_DECLS :
     	lastJavadoc = null;
     }
 
-    private void CommonTokenAction(Token token) {
+    private void CommonTokenAction(Token token){
         lastJavadoc = null;
         if (token.specialToken != null) {
         	if(comments == null) {
@@ -195,7 +198,103 @@ TOKEN_MGR_DECLS :
             if(special.kind == JAVA_DOC_COMMENT) {
                 lastJavadoc = new JavadocComment(special.beginLine, special.beginColumn, special.endLine, special.endColumn, special.image.substring(3, special.image.length()-2));        	
                 comments.add(lastJavadoc);
-            } else if(special.kind == SINGLE_LINE_COMMENT) {
+            } else if(special.kind == INVD) {
+				// When the parser finds an invariant
+				// Gets / Sets current Invariants instance
+        		Invariants invs = Invariants.getInstance();
+        		// Gets the letter that refers which type of invariant it is
+        		String type = special.image.substring(14, 15);
+        		String varName = special.image.substring(16, special.image.indexOf(" ", 16));
+        		// System.out.println(varName);
+				Invariant inv;
+
+				int operSIndex, operEIndex;
+				String oper;
+				int operSize;
+				String value;
+				Invariant.invType operType;
+
+				switch(type.charAt(0))				{					case 'F':
+						// gets the index of the space before the operator
+						operSIndex = special.image.indexOf(" ", 16);
+						// gets the index of the space after the operator
+						operEIndex = special.image.indexOf(" ", operSIndex+1);
+						// gets the operator
+						oper = special.image.substring(operSIndex+1, operEIndex);
+						operSize = oper.length();
+						//System.out.println("Oper: "+oper);
+
+						operType = Invariant.invType.EQUAL;
+
+						switch(oper.charAt(0))						{
+							case '<': if(operSize > 1) operType = Invariant.invType.LESSERE; else operType = Invariant.invType.LESSER; break;
+							case '=': operType = Invariant.invType.EQUAL; break;
+							case '>': if(operSize > 1) operType = Invariant.invType.GREATERE; else operType = Invariant.invType.GREATER; break;
+							case '!': operType = Invariant.invType.NOTEQUAL; break;
+													  							default:
+								try{
+								  throw new InvalidTypeException();
+								}catch(InvalidTypeException e){
+								  e.printStackTrace();
+								}
+								System.exit(-1);
+						}
+
+						value = special.image.substring(operEIndex+1);
+						//System.out.println("value: "+value);
+						Float valuef = Float.parseFloat(value);
+
+						inv = new Invariant<Float>(operType, "Float", valuef);
+						invs.addInvariant(varName, inv);
+						break;
+					case 'I':
+						// gets the index of the space before the operator
+						operSIndex = special.image.indexOf(" ", 16);
+						// gets the index of the space after the operator
+						operEIndex = special.image.indexOf(" ", operSIndex+1);
+						// gets the operator
+						oper = special.image.substring(operSIndex+1, operEIndex);
+						operSize = oper.length();
+						//System.out.println("Oper: "+oper);
+
+						operType = Invariant.invType.EQUAL;
+
+						switch(oper.charAt(0))
+						{
+							case '<': if(operSize > 1) operType = Invariant.invType.LESSERE; else operType = Invariant.invType.LESSER; break;
+							case '=': operType = Invariant.invType.EQUAL; break;
+							case '>': if(operSize > 1) operType = Invariant.invType.GREATERE; else operType = Invariant.invType.GREATER; break;
+							case '!': operType = Invariant.invType.NOTEQUAL; break;
+													  
+							default:
+								try{
+								  throw new InvalidTypeException();
+								}catch(InvalidTypeException e){
+								  e.printStackTrace();
+								}
+								System.exit(-1);
+						}
+
+						value = special.image.substring(operEIndex+1);
+						//System.out.println("value: "+value);
+						Integer valuei = Integer.parseInt(value);
+
+						inv = new Invariant<Integer>(operType, "Integer", valuei);
+						invs.addInvariant(varName, inv);
+						break;
+					case 'C':
+						//inv = new Invariant<Character>(Invariant.invType., value);
+						break;
+					default:
+						try{
+						  throw new InvalidTypeException();
+						}catch(InvalidTypeException e){
+						  e.printStackTrace();
+						}
+						System.exit(-1);
+				}
+
+          	} else if(special.kind == SINGLE_LINE_COMMENT) {
                 LineComment comment = new LineComment(special.beginLine, special.beginColumn, special.endLine, special.endColumn, special.image.substring(2));        	
                 comments.add(comment);
             } else if(special.kind == MULTI_LINE_COMMENT) {
@@ -206,9 +305,12 @@ TOKEN_MGR_DECLS :
     }
 }
 
+// Version where the @ is removed from the SINGLE_LINE_COMMENT
+// <SINGLE_LINE_COMMENT: "//" (~["@"]) (~["\n","\r"])* ("\n"|"\r"|"\r\n")? >
+
 SPECIAL_TOKEN :
 {
-  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")? >
+  <SINGLE_LINE_COMMENT: "//" (~["@"]) (~["\n","\r"])* ("\n"|"\r"|"\r\n")? >
 }
 
 MORE :
@@ -1167,20 +1269,23 @@ TOKEN :
 // temos de reescrever em cada linha todos os operadores possiveis
 // OLD: < OPER: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) >
 
+SPECIAL_TOKEN :
+{ < INVD: "//" < AT > " INVARIANT " < TYPE > ("\n"|"\r"|"\r\n") >
+}
+
 TOKEN :
 {
-  < INVD: "//" < AT > "INVARIANT" < TYPE > >
-| < TYPE: "F" < FCOND > | "I" < ICOND > | "C" < CCOND > >
-| < FCOND: < IDENTIFIERI > (< FOPER1 > | < FOPER2 >) >
+  < TYPE: "F " < FCOND > | "I " < ICOND > | "C " < CCOND > >
+| < FCOND: < IDENTIFIERI > " " (< FOPER1 > | < FOPER2 > ) >
 | < IDENTIFIERI: < LETTER > (< PART_LETTER >)* >
-| < FOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < FLOATING_POINT_LITERAL > >
-| < FOPER2: < FLOATING_POINT_LITERAL > < LT > < GT > < FLOATING_POINT_LITERAL > >
-| < ICOND: < IDENTIFIERI > (< IOPER1 > | < IOPER2 >) >
-| < IOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) < INTEGER_LITERAL > >
-| < IOPER2: < INTEGER_LITERAL > < LT > < GT > < INTEGER_LITERAL > >
-| < CCOND: < IDENTIFIERI > < COPER1 > >
+| < FOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) " " < FLOATING_POINT_LITERAL > >
+| < FOPER2: < FLOATING_POINT_LITERAL > " " < LT > < GT > " " < FLOATING_POINT_LITERAL > >
+| < ICOND: < IDENTIFIERI > " " (< IOPER1 > | < IOPER2 >) >
+| < IOPER1: ( < LT > | < EQ > | < LE > | < GE > | < NE > | < GT > ) " " < INTEGER_LITERAL > >
+| < IOPER2: < INTEGER_LITERAL > " " < LT > < GT > " " < INTEGER_LITERAL > >
+| < CCOND: < IDENTIFIERI > " " < COPER1 > >
 | < COPER1: ( < EQ > < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET >
-			| < LT > < GT >  < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET > ) >
+			| < NE >  < LBRACKET > (< CHARACTER_LITERAL > < COMMA >)* < CHARACTER_LITERAL > < RBRACKET > ) >
 }
 
 /*****************************************

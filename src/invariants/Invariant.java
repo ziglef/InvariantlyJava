@@ -7,26 +7,29 @@ public class Invariant<T extends Comparable<T>> {
 	public enum invType { LESSER, EQUAL, LESSERE, GREATERE, NOTEQUAL, GREATER, BETWEEN };
 	
 	private final invType type;
+	private final String varType;
 
 	private final T value;
 	private final ArrayList<T> values;
 
-	public Invariant( invType type, T value ){
+	public Invariant( invType type, String varType, T value ){
 		this.type = type;
 		this.value = value;
 		this.values = null;
+		this.varType = varType;
 	}
 
-	public Invariant( invType type, ArrayList<T> values ) throws WrongSizeException{
+	public Invariant( invType type, String varType, ArrayList<T> values ){
 		this.type = type;
 		this.value = null;
-
-		if( values.size() != 2 )
-			throw new WrongSizeException();
-
 		this.values = values;
+		this.varType = varType;
 	}
 
+	public String getType(){
+		return this.varType;
+	}
+	
 	public <U extends Comparable<?>> boolean checkValue(U value) {
 
 		// If the value isn't a character ...

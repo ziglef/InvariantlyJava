@@ -3,7 +3,7 @@ package invariants;
 public class InvalidValueException extends Exception {
 	
 	public InvalidValueException(){
-		super("Value can't be null!");
+		super("Value isn't what it was supposed to be!");
 	}
 	
 }

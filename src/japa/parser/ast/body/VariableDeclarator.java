@@ -21,6 +21,14 @@
  */
 package japa.parser.ast.body;
 
+import invariants.InvalidValueException;
+import invariants.Invariant;
+import invariants.Invariants;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import japa.parser.ast.Node;
 import japa.parser.ast.expr.Expression;
 import japa.parser.ast.visitor.GenericVisitor;
@@ -31,52 +39,146 @@ import japa.parser.ast.visitor.VoidVisitor;
  */
 public final class VariableDeclarator extends Node {
 
-    private VariableDeclaratorId id;
+	private VariableDeclaratorId id;
 
-    private Expression init;
+	private Expression init;
 
-    public VariableDeclarator() {
-    }
+	public VariableDeclarator() {
+	}
 
-    public VariableDeclarator(VariableDeclaratorId id) {
-        this.id = id;
-    }
+	public VariableDeclarator(VariableDeclaratorId id) {
+		this.id = id;
+	}
 
-    public VariableDeclarator(VariableDeclaratorId id, Expression init) {
-        this.id = id;
-        this.init = init;
-    }
+	public VariableDeclarator(VariableDeclaratorId id, Expression init) {
+		this.id = id;
+		this.init = init;
 
-    public VariableDeclarator(int beginLine, int beginColumn, int endLine, int endColumn, VariableDeclaratorId id, Expression init) {
-        super(beginLine, beginColumn, endLine, endColumn);
-        this.id = id;
-        this.init = init;
-    }
+		Invariants invs = Invariants.getInstance();
+		
+		System.out.println("I dectect an initialization!");
+		if( init != null ) System.out.println(init.toString());
 
-    @Override
-    public <R, A> R accept(GenericVisitor<R, A> v, A arg) {
-        return v.visit(this, arg);
-    }
+		if(invs.checkInvariant(id.getName())){
+			System.out.println("The target is an invariant! Checking value...");
 
-    @Override
-    public <A> void accept(VoidVisitor<A> v, A arg) {
-        v.visit(this, arg);
-    }
+			Invariant<? extends Comparable<?>> inv = invs.getInvariant(id.getName());
+			Integer valuei = null;
+			Float valuef = null;
+			Character valuec = null;
 
-    public VariableDeclaratorId getId() {
-        return id;
-    }
+			boolean isItOk = false;
 
-    public Expression getInit() {
-        return init;
-    }
+			ScriptEngineManager mgr = new ScriptEngineManager();
+			ScriptEngine engine = mgr.getEngineByName("JavaScript");
+			String newvalue = null;
+			try {
+				newvalue = engine.eval(init.toString()).toString();
+			} catch (ScriptException e1) {
+				e1.printStackTrace();
+			}
 
-    public void setId(VariableDeclaratorId id) {
-        this.id = id;
-    }
+			if(inv.getType().equals("Float")){
+				valuef = Float.parseFloat(newvalue);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuef);
+			} else if(inv.getType().equals("Integer")){
+				valuei = Integer.parseInt(newvalue);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuei);
+			} else if(inv.getType().equals("Character")){
+				valuec = init.toString().charAt(0);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuec);
+			}
 
-    public void setInit(Expression init) {
-        this.init = init;
-    }
+			if(isItOk){
+				System.out.println("The value its ok!");
+			} else {
+				System.out.println("The value is not ok!");
+				try{
+					throw new InvalidValueException();
+				} catch( InvalidValueException e){
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public VariableDeclarator(int beginLine, int beginColumn, int endLine, int endColumn, VariableDeclaratorId id, Expression init) {
+		super(beginLine, beginColumn, endLine, endColumn);
+		this.id = id;
+		this.init = init;
+		
+		Invariants invs = Invariants.getInstance();
+		
+		System.out.println("I dectect an initialization!");
+		if( init != null ) System.out.println(init.toString());
+
+		if(invs.checkInvariant(id.getName())){
+			System.out.println("The target is an invariant! Checking value...");
+
+			Invariant<? extends Comparable<?>> inv = invs.getInvariant(id.getName());
+			Integer valuei = null;
+			Float valuef = null;
+			Character valuec = null;
+
+			boolean isItOk = false;
+
+			ScriptEngineManager mgr = new ScriptEngineManager();
+			ScriptEngine engine = mgr.getEngineByName("JavaScript");
+			String newvalue = null;
+			try {
+				newvalue = engine.eval(init.toString()).toString();
+			} catch (ScriptException e1) {
+				e1.printStackTrace();
+			}
+
+			if(inv.getType().equals("Float")){
+				valuef = Float.parseFloat(newvalue);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuef);
+			} else if(inv.getType().equals("Integer")){
+				valuei = Integer.parseInt(newvalue);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuei);
+			} else if(inv.getType().equals("Character")){
+				valuec = init.toString().charAt(0);
+				isItOk = !invs.checkInvariantValue(id.getName(), valuec);
+			}
+
+			if(isItOk){
+				System.out.println("The value its ok!");
+			} else {
+				System.out.println("The value is not ok!");
+				try{
+					throw new InvalidValueException();
+				} catch( InvalidValueException e){
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@Override
+	public <R, A> R accept(GenericVisitor<R, A> v, A arg) {
+		return v.visit(this, arg);
+	}
+
+	@Override
+	public <A> void accept(VoidVisitor<A> v, A arg) {
+		v.visit(this, arg);
+	}
+
+	public VariableDeclaratorId getId() {
+		return id;
+	}
+
+	public Expression getInit() {
+		return init;
+	}
+
+	public void setId(VariableDeclaratorId id) {
+		this.id = id;
+	}
+
+	public void setInit(Expression init) {
+		this.init = init;
+	}
 
 }

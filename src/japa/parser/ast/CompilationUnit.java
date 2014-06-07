@@ -22,6 +22,7 @@
 package japa.parser.ast;
 
 import invariants.Invariant;
+import invariants.Invariants;
 import japa.parser.ast.body.AnnotationDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.body.EmptyTypeDeclaration;
@@ -65,12 +66,10 @@ public final class CompilationUnit extends Node {
     private List<TypeDeclaration> types;
 
     private List<Comment> comments;
-
-	// Declaration //
-    // Hash Map that will save all the invariants name and info //
-    private HashMap<String, Invariant<? extends Comparable<?>>> invariants;
     
     public CompilationUnit() {
+    	// Gets / Sets current Invariants instance
+        Invariants.getInstance();
     }
 
     public CompilationUnit(PackageDeclaration pakage, List<ImportDeclaration> imports, List<TypeDeclaration> types, List<Comment> comments) {
@@ -78,9 +77,8 @@ public final class CompilationUnit extends Node {
         this.imports = imports;
         this.types = types;
         this.comments = comments;
-        // Constructor material //
-        // Added the initialization for the invariants hash map //
-        this.invariants = new HashMap<String, Invariant<? extends Comparable<?>>>();
+        // Gets / Sets current Invariants instance
+        Invariants.getInstance();
     }
 
     public CompilationUnit(int beginLine, int beginColumn, int endLine, int endColumn, PackageDeclaration pakage, List<ImportDeclaration> imports, List<TypeDeclaration> types, List<Comment> comments) {
@@ -89,28 +87,9 @@ public final class CompilationUnit extends Node {
         this.imports = imports;
         this.types = types;
         this.comments = comments;
-        // Constructor material //
-        // Added the initialization for the invariants hash map //
-        this.invariants = new HashMap<String, Invariant<? extends Comparable<?>>>();
+        // Gets / Sets current Invariants instance
+        Invariants.getInstance();
     }
-
-	// Additional methods //
-	// Invariants stuff //
-    public void addInvariant(String name, Invariant<? extends Comparable<?>> inv){
-    	this.invariants.put(name, inv);
-    }
-    
-    public boolean checkInvariant(String name){
-    	return this.invariants.containsKey(name);
-    }
-    
-    public <T extends Comparable<?>> boolean checkInvariantValue(String name, T value){
-    	if( !checkInvariant(name) )
-    		return false;
-    	
-    	return this.invariants.get(name).checkValue(value);
-    }
-    // End Invariants stuff //
     
     @Override
     public <R, A> R accept(GenericVisitor<R, A> v, A arg) {

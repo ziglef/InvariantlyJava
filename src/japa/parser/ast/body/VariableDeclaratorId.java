@@ -21,6 +21,7 @@
  */
 package japa.parser.ast.body;
 
+import invariants.Invariants;
 import japa.parser.ast.Node;
 import japa.parser.ast.visitor.GenericVisitor;
 import japa.parser.ast.visitor.VoidVisitor;
@@ -39,11 +40,17 @@ public final class VariableDeclaratorId extends Node {
 
     public VariableDeclaratorId(String name) {
         this.name = name;
+        Invariants invs = Invariants.getInstance();
+        if(invs.checkInvariant(name) == true)
+        	System.out.println("The "+name+" invariant was declared!");
     }
 
     public VariableDeclaratorId(int beginLine, int beginColumn, int endLine, int endColumn, String name, int arrayCount) {
         super(beginLine, beginColumn, endLine, endColumn);
         this.name = name;
+        Invariants invs = Invariants.getInstance();
+        if(invs.checkInvariant(name) == true)
+        	System.out.println("The "+name+" invariant was declared!");
         this.arrayCount = arrayCount;
     }
 
