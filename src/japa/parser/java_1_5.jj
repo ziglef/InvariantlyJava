@@ -209,10 +209,12 @@ TOKEN_MGR_DECLS :
 				Invariant inv;
 
 				int operSIndex, operEIndex;
+				int lbIndex, rbIndex;
 				String oper;
 				int operSize;
 				String value;
-				Invariant.invType operType;
+				Invariant.invType operType = Invariant.invType.EQUAL;;
+				String elements;
 
 				switch(type.charAt(0))				{					case 'F':
 						// gets the index of the space before the operator
@@ -223,8 +225,6 @@ TOKEN_MGR_DECLS :
 						oper = special.image.substring(operSIndex+1, operEIndex);
 						operSize = oper.length();
 						//System.out.println("Oper: "+oper);
-
-						operType = Invariant.invType.EQUAL;
 
 						switch(oper.charAt(0))						{
 							case '<': if(operSize > 1) operType = Invariant.invType.LESSERE; else operType = Invariant.invType.LESSER; break;
@@ -257,8 +257,6 @@ TOKEN_MGR_DECLS :
 						operSize = oper.length();
 						//System.out.println("Oper: "+oper);
 
-						operType = Invariant.invType.EQUAL;
-
 						switch(oper.charAt(0))
 						{
 							case '<': if(operSize > 1) operType = Invariant.invType.LESSERE; else operType = Invariant.invType.LESSER; break;
@@ -282,9 +280,48 @@ TOKEN_MGR_DECLS :
 						inv = new Invariant<Integer>(operType, "Integer", valuei);
 						invs.addInvariant(varName, inv);
 						break;
-					case 'C':
-						//inv = new Invariant<Character>(Invariant.invType., value);
-						break;
+	
+
+    				case 'C':
+	                    // gets the index of the space before the operator
+	                    operSIndex = special.image.indexOf(" ", 16);
+	                    // gets the index of the space after the operator
+	                    operEIndex = special.image.indexOf(" ", operSIndex+1);
+	                    // gets the operator
+	                    oper = special.image.substring(operSIndex+1, operEIndex);
+	                    // gets the index of the left bracket
+	                    lbIndex = special.image.indexOf("[", 16);
+	                    // gets the index of the right bracket
+                       	rbIndex = special.image.indexOf("]", 19);
+                                               
+ 
+                    	elements = special.image.substring(lbIndex, rbIndex-1);
+ 
+                        switch(oper.charAt(0))
+                        {
+                        	case '!': operType = Invariant.invType.NOTEQUAL; break;
+                    		case '=': operType = Invariant.invType.EQUAL; break;
+                                                                                                   
+                     		default:
+                        		try{
+                            		throw new InvalidTypeException();
+                            	}catch(InvalidTypeException e){
+                         			e.printStackTrace();
+                                }
+                                System.exit(-1);
+                       	}
+                       	
+                        ArrayList<Character> characters = new ArrayList<Character>();
+ 
+                        for(int i = 0; i<elements.length() ;i++){
+                        	if(elements.charAt(i) != ',') characters.add(elements.charAt(i));
+                       	}
+ 
+                     	inv = new Invariant<Character>(operType,"Character", characters);
+                   		invs.addInvariant(varName, inv);
+ 
+                   		break;
+
 					default:
 						try{
 						  throw new InvalidTypeException();
